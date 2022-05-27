@@ -1,17 +1,25 @@
 describe("Chat", () => {
-  it("should render chat page correctly", () => {
+  it("should render login page correctly", () => {
     cy.visit("/");
     cy.get("#textField-User\\ Name").should("exist");
     cy.get("#textField-User\\ Name").clear();
     cy.get("#textField-User\\ Name").type("chevy");
-    cy.get("#textField-Room").clear();
-    cy.get("#textField-Room").type("123");
-    cy.get("#joinRoom").click();
-    cy.get("#textField-Enter\\ message").clear();
-    cy.get("#textField-Enter\\ message").type("Hello");
-    cy.get("#send").click();
+  });
+
+  it("should render chat page correctly", () => {
+    cy.visit("/");
+    cy.get("#textField-User\\ Name").clear();
+    cy.get("#textField-User\\ Name").type("chevy");
+    cy.get(".storybook-button").click();
+    cy.get("#textField-Chatroom").clear();
+    cy.get("#textField-Chatroom").type("React");
+    cy.get(".storybook-button").click();
+    cy.get(".MuiFormControl-root").click();
     cy.get("#textField-Enter\\ message").clear();
     cy.get("#textField-Enter\\ message").type("Hi{enter}");
-    cy.get("#clear").click();
+    cy.get("#clear > .MuiButton-label").click();
+    cy.get("path").click();
+    cy.get("path").click();
+    cy.get("#logout > .MuiButton-label").click();
   });
 });

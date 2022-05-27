@@ -47,16 +47,25 @@ class Users {
       }
       return user;
     });
-    console.log("INSIDE updateRoomDetailsForUser 2!");
+    console.log("INSIDE updateRoomDetailsForUser!");
     console.log(this.users);
   }
 
-  deleteUserById(id) {
-    const index = this.users.findIndex(({ userId }) => userId === id);
-    if (index !== -1) return this.users.splice(index, 1)[0];
-
-    console.log("INSIDE deleteUserById!");
-    console.log(this.users);
+  removeRoomByIdAndRoomName(id, roomName) {
+    if (id && roomName) {
+      return this.users
+        .map((user) => {
+          if (user.userId === id) {
+            const index = user.rooms.findIndex(
+              (room) => room.roomName === roomName
+            );
+            user.rooms.pop(user.rooms[index]);
+            return user;
+          }
+        })
+        .filter(Boolean);
+    }
+    return this.users;
   }
 }
 

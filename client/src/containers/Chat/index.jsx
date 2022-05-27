@@ -62,6 +62,8 @@ const Chat = ({ classes }) => {
     });
 
     socket.on("notification", (notif) => {
+      console.log(notif);
+      socket.emit("getRoomUsers", roomName);
       setNotify(notif);
     });
   }, [socket, roomName]);
@@ -139,7 +141,9 @@ const Chat = ({ classes }) => {
               <div ref={messagesEndRef} />
             </Grid>
             {!isEmptyObject(notify) && (
-              <Grid item>{`${notify.title}, ${notify.description}`}</Grid>
+              <Grid item className={classes.notify}>
+                {notify.description}
+              </Grid>
             )}
             <Grid item className={classes.chatInputWrapper}>
               <Input
@@ -172,7 +176,7 @@ const Chat = ({ classes }) => {
           <Grid item className={classes.usersWrapper}>
             <Typography variant="h6">Users Online</Typography>
             {users?.map((user) => (
-              <p>{user}</p>
+              <p>{user.userName}</p>
             ))}
           </Grid>
         </Grid>

@@ -40,33 +40,33 @@ io.on("connection", (socket) => {
     const { error } = chatRoom.createRoom({
       creatorName: userName,
       roomName,
-      users: [userName],
+      users: [{ id: socket.id, userName }],
     });
 
     if (error) {
       callback(error);
     } else {
       socket.join(roomName);
-      chatRoom.addUserToRoomByName(userName, roomName);
+      chatRoom.addUserToRoomByName(socket.id, userName, roomName);
       userDetails.updateRoomDetailsForUser(userName, roomName, true);
       callback();
     }
 
-    io.emit("getRooms", { userName });
-  });
-
-  socket.on("getRoomUsers", (roomName) => {
-    io.in(roomName).emit("roomUsers", chatRoom.getUsersByRoom(roomName));
+    io.emit("myRooms", chatRoom.getCreatedRoomsByName(userName));
+    io.emit("otherRooms", chatRoom.getOtherRoomsByName(userName));
   });
 
   socket.on("joinRoom", ({ userName, roomName }, callback) => {
     socket.join(roomName);
 
-    chatRoom.addUserToRoomByName(userName, roomName);
-
+    chatRoom.addUserToRoomByName(socket.id, userName, roomName);
     userDetails.updateRoomDetailsForUser(userName, roomName, false);
 
     callback();
+  });
+
+  socket.on("getRoomUsers", (roomName) => {
+    io.in(roomName).emit("roomUsers", chatRoom.getUsersByRoom(roomName));
   });
 
   socket.on("getMessages", (roomName) => {
@@ -78,14 +78,8 @@ io.on("connection", (socket) => {
 
   socket.on("sendMessage", ({ message, roomName, userName }) => {
     const user = userDetails.getUserByName(userName);
-    console.log("INSIDE sendMessage!");
-    console.log(user);
 
     messagesInfo.setMessage(message, roomName, userName, user?.userId);
-
-    console.log(
-      messagesInfo.getCurrentMessage(message, roomName, userName, user?.userId)
-    );
     io.in(roomName).emit(
       "receiveMessage",
       messagesInfo.getCurrentMessage(message, roomName, userName, user?.userId)
@@ -93,22 +87,24 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected");
-    const room = chatRoom.getRoomsByUserId(socket.id);
-    const user = userDetails.deleteUserById(socket.id);
+    console.log("User disconnected: " + socket.id);
+    const roomName = chatRoom.getRoomByUserId(socket.id);
 
-    if (user) {
-      io.in(room.roomName).emit("notification", {
-        title: "Someone just left",
-        description: `${user.userName} just left the room`,
-      });
+    if (roomName) {
+      const user = userDetails.removeRoomByIdAndRoomName(
+        socket.id,
+        roomName
+      )[0];
+      const rooms = chatRoom.removeUserByIdAndRoomName(socket.id, roomName)[0];
 
-      console.log(`${user.userName} just left the room`);
-      console.log(chatRoom.getUsersByRoom(room.roomName));
-      io.in(room.roomName).emit(
-        "users",
-        chatRoom.getUsersByRoom(room.roomName)
-      );
+      if (user) {
+        io.in(roomName).emit("notification", {
+          description: `${user.userName} left the room`,
+        });
+
+        console.log(`${user.userName} left the room`);
+        io.in(roomName).emit("users", rooms);
+      }
     }
   });
 });

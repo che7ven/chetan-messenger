@@ -25,12 +25,22 @@ const JoinRoom = ({ classes }) => {
       setUserName(userName);
       socket.emit("getRooms", { userName });
 
+      const setMyOtherRooms = (rooms) => {
+        rooms.forEach((room) => {
+          if (room.creatorName === userName) {
+            setMyRooms(rooms);
+          } else {
+            setOtherRooms(rooms);
+          }
+        });
+      };
+
       socket.on("myRooms", (my) => {
-        setMyRooms(my);
+        setMyOtherRooms(my);
       });
 
       socket.on("otherRooms", (other) => {
-        setOtherRooms(other);
+        setMyOtherRooms(other);
       });
     } else {
       navigate("/");

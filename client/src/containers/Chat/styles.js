@@ -58,6 +58,11 @@ const styles = (theme) => ({
   others: {
     textAlign: "end",
   },
+  notify: {
+    fontSize: 12,
+    fontStyle: "italic",
+    textAlign: "center",
+  },
 });
 
 export default styles;

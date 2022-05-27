@@ -6,8 +6,7 @@ const styles = (theme) => ({
     alignContent: "center",
   },
   innerWrapper: {
-    width: "30%",
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
   },
   helperText: {
@@ -21,7 +20,8 @@ const styles = (theme) => ({
     },
   },
   inputWrap: {
-    width: "75%",
+    width: "30%",
+    marginRight: 24,
   },
 });
 

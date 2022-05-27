@@ -27,19 +27,45 @@ class Rooms {
     return this.rooms;
   }
 
-  addUserToRoomByName(userName, roomName) {
+  addUserToRoomByName(id, userName, roomName) {
     this.rooms = this.rooms.map((room) => {
       if (room.roomName === roomName) {
         const users = { ...room }.users;
-        if (!users?.includes(userName)) {
-          return { ...room, users: [...room.users, userName] };
+        if (users?.findIndex((user) => user.userName === userName) === -1) {
+          return { ...room, users: [...room.users, { id, userName }] };
         }
         return room;
       }
       return room;
     });
-    console.log("INSIDE addUserToRoomByName 2!");
+    console.log("INSIDE addUserToRoomByName!");
     console.log(this.rooms);
+  }
+
+  getRoomByUserId(userId) {
+    return this.rooms
+      ?.map((room) => {
+        return {
+          roomName: room.roomName,
+          index: room.users?.findIndex((user) => user.id === userId),
+        };
+      })
+      ?.filter((a) => a.index !== -1)[0]?.roomName;
+  }
+
+  removeUserByIdAndRoomName(id, roomName) {
+    if (id && roomName) {
+      return this.rooms
+        .map((room) => {
+          if (room.roomName === roomName) {
+            const index = room.users.findIndex((user) => user.id === id);
+            room.users.pop(room.users[index]);
+            return room;
+          }
+        })
+        .filter(Boolean);
+    }
+    this.rooms;
   }
 
   getCreatedRoomsByUserId(userId) {
@@ -56,10 +82,6 @@ class Rooms {
 
   getOtherRoomsByUserId(userId) {
     return this.rooms.filter(({ creatorId }) => creatorId !== userId);
-  }
-
-  getRoomsByUserId(userId) {
-    return this.rooms.filter(({ users }) => users.includes(userId));
   }
 
   getRoomsNotPartOfUserId(userId) {
